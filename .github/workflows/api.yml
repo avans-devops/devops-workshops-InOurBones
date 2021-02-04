@@ -6,13 +6,13 @@ on:
       - master
       - dev
     paths: 
-      - 'api/***'
+      - 'api/**'
   pull_request:
     branches: 
       - master
       - dev
     paths: 
-      - 'api/***'
+      - 'api/**'
 
 jobs:
   test:
