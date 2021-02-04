@@ -1,4 +1,4 @@
-name: CI
+name: API Test
 
 on:
   workflow_dispatch: 
@@ -24,7 +24,6 @@ on:
 
 jobs:
   test:
-    if: ${{ steps.abc.outputs.all }}
     name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
