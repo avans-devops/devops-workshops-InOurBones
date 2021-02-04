@@ -10,8 +10,8 @@
       ],
       "parserOptions": {
         "project": [
-          "frontend/tsconfig.json",
-          "frontend/e2e/tsconfig.json"
+          "./tsconfig.json",
+          "./e2e/tsconfig.json"
         ],
         "createDefaultProgram": true
       },
@@ -47,7 +47,11 @@
       "extends": [
         "plugin:@angular-eslint/template/recommended"
       ],
-      "rules": {}
+      "rules": {
+        "linebreak-style": ["warn", "windows"],
+        "comma-dangle": "off",
+        "no-console": "off"
+      }
     }
   ]
 }
