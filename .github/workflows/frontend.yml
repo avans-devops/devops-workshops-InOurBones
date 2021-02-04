@@ -1,0 +1,73 @@
+name: Frontend Test
+
+on:
+  workflow_dispatch: 
+    inputs:
+      LogLevel:
+        description: 'Log level'
+        required: true
+        default: 'Release Website Workflow'
+      tags:
+        description: 'Trigger Release Website Workflow'
+  push:
+    branches: 
+      - master
+      - dev
+    paths: 
+      - 'frontend/**'
+  pull_request:
+    branches: 
+      - master
+      - dev
+    paths: 
+      - 'frontend/**'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create production build
+        working-directory: ./frontend
+        run: npm run build:prod
+        
+      - name: Install eslint
+        working-directory: ./frontend
+        run: yarn add eslint
+        
+      - name: Run eslint
+        working-directory: ./frontend
+        run: yarn run eslint
+      
+      - name: Run tests
+        working-directory: ./frontend
+        run: npm test
+      
+      - name: Create Prod Build
+        working-directory: ./frontend
+        run: |
+          npm run build:prod
+          zip ./dist
+      
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release
+        id: upload-release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist.zip
+          asset_name: dist
+          asset_content_type: application/zip
