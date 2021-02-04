@@ -47,7 +47,7 @@ jobs:
       
       - name: Install eslint
         working-directory: ./api
-        run: yarn install eslint
+        run: yarn add eslint
         
       - name: Run eslint
         working-directory: ./api     
