@@ -1,6 +1,14 @@
 name: CI
 
 on:
+  workflow_dispatch: 
+    inputs:
+      LogLevel:
+        description: 'Log level'
+        required: true
+        default: 'test'
+      tags:
+        description: 'Trigger Test Workflow'
   push:
     branches: 
       - master
