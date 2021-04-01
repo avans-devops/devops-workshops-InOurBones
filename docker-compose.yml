@@ -8,10 +8,10 @@ x-secret: &secret MyLittleSecret
 
 version: "3.9"
 services:
-  api_1:
+  api:
     build: ./api
     image: devops_api
-    container_name: devops_api_1
+    container_name: devops_api
     environment:
       username: *username
       password: *password
@@ -21,28 +21,11 @@ services:
       params: *params
       secret: *secret
     ports:
-      - 3001:3000
+      - 3000:3000
     volumes:
-      - ./api:/usr/src/app1
+      - ./api:/usr/src/app
     networks:
-      - backend
-  api_2:
-    build: ./api
-    image: devops_api
-    container_name: devops_api_2
-    environment:
-      username: *username
-      password: *password
-      host: *host
-      port: *port
-      database: *database
-      params: *params
-      secret: *secret
-    ports:
-      - 3002:3000
-    volumes:
-      - ./api:/usr/src/app2
-    networks:
+      - frontend
       - backend
   frontend:
     build: ./frontend
@@ -65,18 +48,6 @@ services:
       - ./data:/data/db
     networks:
       - backend
-  nginx:
-    build: ./nginx
-    image: devops_nginx
-    container_name: devops_nginx
-    networks:
-      - frontend
-      - backend
-    ports:
-      - 3000:80
-    depends_on:
-      - api_1
-      - api_2
 
 networks:
   frontend:
