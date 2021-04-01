@@ -1,0 +1,56 @@
+x-username: &username Bones
+x-password: &password VerySecretPassword
+x-host: &host devops_mongo
+x-port: &port 27017
+x-database: &database Connections
+x-params: &params ?=authSource=admin
+x-secret: &secret MyLittleSecret
+
+version: "3.9"
+services:
+  api:
+    build: ./api
+    image: devops_api
+    container_name: devops_api
+    environment:
+      username: *username
+      password: *password
+      host: *host
+      port: *port
+      database: *database
+      params: *params
+      secret: *secret
+    ports:
+      - 3000:3000
+    volumes:
+      - ./api:/usr/src/app
+    networks:
+      - frontend
+      - backend
+  frontend:
+    build: ./frontend
+    image: devops_frontend
+    container_name: devops_frontend
+    ports:
+      - 4200:4200
+    networks:
+      - frontend
+  mongo:
+    image: mongo:latest
+    container_name: devops_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: *username
+      MONGO_INITDB_ROOT_PASSWORD: *password
+      MONGO_INITDB_DATABASE: *database
+    ports:
+      - 27017:27017
+    volumes:
+      - ./data:/data/db
+    networks:
+      - backend
+
+networks:
+  frontend:
+    name: frontend_network
+  backend:
+    name: backend_network
