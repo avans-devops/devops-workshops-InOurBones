@@ -22,22 +22,20 @@ services:
       secret: *secret
     ports:
       - 5000:5000
-    volumes:
-      - ./api:/usr/src/app
-    networks:
-      - frontend
-      - backend
+#    networks:
+#      - frontend
+#      - backend
   frontend:
     build: ./frontend
     image: devops_frontend
     container_name: devops_frontend
     ports:
       - 4200:4200
-    networks:
-      - frontend
-  mongo:
+#    networks:
+#      - frontend
+  mongodb:
     image: mongo:latest
-    container_name: devops_mongo
+    container_name: devops_mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: *username
       MONGO_INITDB_ROOT_PASSWORD: *password
@@ -46,17 +44,18 @@ services:
       - 27017:27017
     volumes:
       - ./data:/data/db
-    networks:
-      - backend
+#    networks:
+#      - backend
   db-exporter:
     image: bitnami/mongodb-exporter:0.11
+    container_name: db_exporter
     environment:
-      - MONGODB_URI=mongo://db:27017
+      - MONGODB_URI=mongodb://db:27017
     restart: always
     ports:
       - 9216:9216
-    networks:
-      - backend
+#    networks:
+#      - backend
   prometheus:
     image: prom/prometheus:latest
     container_name: devops_prometheus
@@ -66,22 +65,27 @@ services:
     ports:
       - 9090:9090
     command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
-    networks:
-     - backend
+#    networks:
+#     - backend
+    depends_on:
+      - db-exporter
+      - api
   grafana:
     build: ./grafana
     image: devops_grafana
     container_name: devops_grafana
     ports:
       - 3000:3000
-    networks:
-      - backend
+#    networks:
+#      - backend
+    depends_on:
+      - prometheus
 
 volumes:
   prometheus-data:
-
-networks:
-  frontend:
-    name: frontend_network
-  backend:
-    name: backend_network
+#
+#networks:
+#  frontend:
+#    name: frontend_network
+#  backend:
+#    name: backend_network
