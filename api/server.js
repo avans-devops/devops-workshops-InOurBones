@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+    require('dotenv').config();
 }
 
 const express = require('express');
@@ -14,9 +14,27 @@ const mongoose = require('mongoose');
 
 const environment = require('./config/environment');
 
+const promBundle = require("express-prom-bundle");
+const metricsMiddleware = promBundle({
+    includePath: true,
+    includeStatusCode: true,
+    normalizePath: true,
+    promClient: {
+        collectDefaultMetrics: {}
+    }
+});
+
+const client = require('prom-client');
+const gauge = new client.Gauge({
+    name: 'number_of_api_clients',
+    help: 'number of api clients that connected to mongodb'
+})
+
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+
+app.use(metricsMiddleware);
 
 // Connect to Mongoose and set connection variable
 // MongoDB connection
@@ -35,7 +53,14 @@ mongoose.connection.on('error', (error) => {
 
 // On successful connection
 mongoose.connection.on('connected', () => {
+    gauge.inc(1);
     console.log('Connected to database');
+});
+
+// On successful disconnection
+mongoose.connection.on('disconnected', () => {
+    gauge.dec(1);
+    console.log('Disconnected from database');
 });
 
 // addtional configuration when serving Angular SPA (static reource and Anugalr routing)
@@ -85,7 +110,7 @@ app.get('*', (req, res) => {
 const HOST = '0.0.0.0';
 // start server
 // Launch app to listen to specified port
-const server = app.listen(process.env.EXPRESS_PORT || 3000, HOST, () => {
+const server = app.listen(process.env.EXPRESS_PORT || 5000, HOST, () => {
     const PORT = server.address().port;
     console.log(`Running  on http://${HOST}:${PORT}`);
 });
